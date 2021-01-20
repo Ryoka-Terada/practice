@@ -3,7 +3,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import Normal from './normal';
-import RootsTmp from './tootsTmp';
 import * as serviceWorker from './serviceWorker';
 
 class SelectMath extends React.Component{
@@ -18,12 +17,12 @@ class SelectMath extends React.Component{
   }
   render(){
     const status = 'Next player: ' + (this.state.xIsNext? this.props.player1: this.props.player2);
-    return(
+    return (
       <div>
         <div className="status">{status}</div>
         <div>
           {/* e.target.valueで選択したvalueを渡している */}
-          <select id="boardNum" class="status" onChange={(e) => this.makeBoard(e.target.value, 1)}>
+          <select id="choiceBoard" class="status" onChange={(e) => this.makeBoard(e.target.value, 1)}>
             <option disabled selected>マス目の数を選択してください</option>
             <option value="3">３×３</option>
             <option value="4">４×４</option>
@@ -37,8 +36,8 @@ class SelectMath extends React.Component{
   }
 
   makeBoard(selectNum, isFirst){
-    // マス数を変更された場合は各目の中をnullにする
-    if(isFirst){
+    // マス数を変更された場合は各マスの中をnullにする
+    if (isFirst) {
       this.state.squares = Array(selectNum*selectNum).fill(null);
     }
     // 選択されたマス数分のボタンを作成する
@@ -59,7 +58,7 @@ class SelectMath extends React.Component{
   }
 
   renderSquare(i) {
-    return(
+    return (
     <button className="square" onClick={() => {this.handleClick(i); this.makeBoard(this.state.num, 0)}}>
       {this.state.squares[i]}
     </button>
@@ -67,6 +66,14 @@ class SelectMath extends React.Component{
   }
 
   handleClick(i) {
+    if (this.state.squares[i]) {
+      // 既に選択されているマスの場合は処理を行わない
+      // TODO 既ビンゴの場合も返却する
+      return;
+    } else {
+      // TODO 白マスの場合はビンゴ判定とマスの更新を行う
+      // const winner = calculateWinner(this.state.squares);
+    }
     this.state.squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       xIsNext: !this.state.xIsNext,
@@ -74,6 +81,81 @@ class SelectMath extends React.Component{
   }
 
 }
+
+function calculateWinner(squares) {
+  // 表示されているマスの列数を取得
+  const squareLine = Math.sqrt(squares.length);
+  var bingo = [];
+  // よこビンゴのパターンを作成
+  var rowCount = 0;
+  var rowBingo = [];
+  for (var i = 0; i < squareLine; i++) {
+    rowBingo = [];
+    for (var j = 0; j < squareLine; j++) {
+      rowBingo.push(rowCount);
+      rowCount++;
+    }
+    bingo.push(rowBingo);
+  }
+  // たてビンゴのパターンを作成
+  var columnCount = 0;
+  var columnBingo = [];
+  for (var i = 0; i < squareLine; i++) {
+    columnBingo = [];
+    for (var j = 0; j < squareLine; j++) {
+      if(j===0){
+        columnBingo.push(columnCount);
+      }else{
+        columnBingo.push(columnCount+squareLine*j);
+      }
+    }
+    columnCount++;
+    bingo.push(columnBingo);
+  }
+  // ななめビンゴのパターンを作成
+  var diagonalCount = 0;
+  var diagonalBingo = [];
+  for(var i = 0; i < 2; i++){
+  }
+
+  const lines = [
+    // よこ
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    // たて
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    // ななめ
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  lines = [ // これ事態はsquareLine*2+2
+    // よこ　squareLine個
+    [0, 1, 2 ,3],
+    [4, 5, 6, 7],
+    [8, 9, 10, 11],
+    [12, 13, 14, 15],
+    // たて　squareLine個
+    [0, 4, 8 ,12],
+    [1, 5, 9, 13],
+    [2, 6, 10, 14],
+    [3, 7, 11, 15],
+    // ななめ　2個
+    [0, 5, 10, 15],
+    [3, 6, 9, 12],
+  ];
+  console.log(bingo);
+  // for (let i = 0; i < lines.length; i++) {
+  //   const [a, b, c] = lines[i];
+  //   if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+  //     return squares[a];
+  //   }
+  // }
+  // return null;
+}
+
 
 class Board extends React.Component {
   constructor(props){
@@ -139,10 +221,6 @@ ReactDOM.render(
   <Game />,   // ２これでGameクラスが呼ばれる
   document.getElementById('root')
 );
-// ReactDOM.render(
-//   <RootsTmp />,   // ２これでGameクラスが呼ばれる
-//   document.getElementById('rootTmp')
-// );
 // htmlにid違う要素をもう一つ書いてこうすれば同じのがもう一個出せる
 ReactDOM.render(
   <Normal />,
