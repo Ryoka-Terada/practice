@@ -16,6 +16,8 @@ class SelectMath extends React.Component{
     };
   }
   render(){
+    const winner = calculateWinner(this.state.squares);
+    console.log("goalllll"+winner);
     const status = 'Next player: ' + (this.state.xIsNext? this.props.player1: this.props.player2);
     return (
       <div>
@@ -72,7 +74,8 @@ class SelectMath extends React.Component{
       return;
     } else {
       // TODO 白マスの場合はビンゴ判定とマスの更新を行う
-      // const winner = calculateWinner(this.state.squares);
+      const winner = calculateWinner(this.state.squares);
+      console.log("結果は"+winner)
     }
     this.state.squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
@@ -112,11 +115,27 @@ function calculateWinner(squares) {
     columnCount++;
     bingo.push(columnBingo);
   }
-  // ななめビンゴのパターンを作成
+  // ななめビンゴのパターンを作成１
   var diagonalCount = 0;
   var diagonalBingo = [];
-  for(var i = 0; i < 2; i++){
+  diagonalBingo.push(diagonalCount);
+  var nowNumber;
+  for(var i = 1; i < squareLine; i++){    // i=1,2,3  4の場合
+    nowNumber = diagonalCount + squareLine + 1;
+    diagonalBingo.push(nowNumber);
+    diagonalCount = nowNumber;
   }
+  console.log(bingo);
+  // ななめビンゴのパターンを作成２
+  diagonalCount = squareLine - 1;
+  diagonalBingo = [];
+  diagonalBingo.push(diagonalCount);
+  for(var i = 1; i < squareLine; i++){    // i=1,2,3  4の場合
+    nowNumber = diagonalCount + squareLine - 1;
+    diagonalBingo.push(nowNumber);
+    diagonalCount = nowNumber;
+  }
+  bingo.push(diagonalBingo);
 
   const lines = [
     // よこ
@@ -131,28 +150,48 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6],
   ];
-  lines = [ // これ事態はsquareLine*2+2
-    // よこ　squareLine個
-    [0, 1, 2 ,3],
-    [4, 5, 6, 7],
-    [8, 9, 10, 11],
-    [12, 13, 14, 15],
-    // たて　squareLine個
-    [0, 4, 8 ,12],
-    [1, 5, 9, 13],
-    [2, 6, 10, 14],
-    [3, 7, 11, 15],
-    // ななめ　2個
-    [0, 5, 10, 15],
-    [3, 6, 9, 12],
-  ];
-  console.log(bingo);
-  // for (let i = 0; i < lines.length; i++) {
-  //   const [a, b, c] = lines[i];
-  //   if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-  //     return squares[a];
-  //   }
-  // }
+  // lines = [ // これ事態はsquareLine*2+2
+  //   // よこ　squareLine個
+  //   [0, 1, 2 ,3],
+  //   [4, 5, 6, 7],
+  //   [8, 9, 10, 11],
+  //   [12, 13, 14, 15],
+  //   // たて　squareLine個
+  //   [0, 4, 8 ,12],
+  //   [1, 5, 9, 13],
+  //   [2, 6, 10, 14],
+  //   [3, 7, 11, 15],
+  //   // ななめ　2個
+  //   [0, 5, 10, 15],
+  //   [3, 6, 9, 12],
+  // ];
+  console.log("ストップ用");
+  // console.log(bingo[0][0]); //0
+  // console.log(bingo[0][1]); //1
+  // console.log(bingo[0][2]); //2
+  console.log(squares[2])
+  var a = bingo[0][2];
+  console.log(squares[bingo[0][2]])
+  // alphabet.some( target => target === 'c') 
+  var bingoResult;
+  for (let i = 0; i < bingo.length; i++) {
+    var checkBingoLine = [];
+    var squareContent;
+    for (let j = 0; j < bingo[i].length; j++) {
+      squareContent = squares[bingo[i][j]];
+      checkBingoLine.push(squares[bingo[i][j]]);
+    }
+    bingoResult = squareContent ? (checkBingoLine.some( target => target != squareContent)? null : squareContent) : null ;
+    if(bingoResult){
+      break;
+    }
+    // checkBingoLine.some( target => target != squareContent);
+    // const [a, b, c] = bingo[i];
+    // if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+    //   return squares[a];
+    // }
+  }
+  return bingoResult;
   // return null;
 }
 
