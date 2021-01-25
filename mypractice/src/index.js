@@ -13,12 +13,16 @@ class SelectMath extends React.Component{
       xIsNext: true,
       maths: null,
       num: 0,
+      winner: null,
     };
   }
   render(){
-    const winner = calculateWinner(this.state.squares);
-    console.log("goalllll"+winner);
-    const status = 'Next player: ' + (this.state.xIsNext? this.props.player1: this.props.player2);
+    // const winner = calculateWinner(this.state.squares);
+    if(this.state.winner){
+      var status = 'Winner is: ' + (this.state.winner);
+    }else{
+      var status = 'Next player: ' + (this.state.xIsNext? this.props.player1: this.props.player2);
+    }
     return (
       <div>
         <div className="status">{status}</div>
@@ -38,8 +42,9 @@ class SelectMath extends React.Component{
   }
 
   makeBoard(selectNum, isFirst){
-    // マス数を変更された場合は各マスの中をnullにする
+    // マス数を変更された場合は各マスの中をnullにし、winnerの中身もnullにする
     if (isFirst) {
+      this.state.winner = null;
       this.state.squares = Array(selectNum*selectNum).fill(null);
     }
     // 選択されたマス数分のボタンを作成する
@@ -68,16 +73,15 @@ class SelectMath extends React.Component{
   }
 
   handleClick(i) {
-    if (this.state.squares[i]) {
+    if (this.state.squares[i] || this.state.winner) {
       // 既に選択されているマスの場合は処理を行わない
-      // TODO 既ビンゴの場合も返却する
+      // 既ビンゴの場合も返却する
       return;
     } else {
-      // TODO 白マスの場合はビンゴ判定とマスの更新を行う
-      const winner = calculateWinner(this.state.squares);
-      console.log("結果は"+winner)
+      // 白マスの場合はビンゴ判定とマスの更新を行う
+      this.state.squares[i] = this.state.xIsNext ? 'X' : 'O';
+      this.state.winner = calculateWinner(this.state.squares);
     }
-    this.state.squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       xIsNext: !this.state.xIsNext,
     });
@@ -125,7 +129,7 @@ function calculateWinner(squares) {
     diagonalBingo.push(nowNumber);
     diagonalCount = nowNumber;
   }
-  console.log(bingo);
+  bingo.push(diagonalBingo);
   // ななめビンゴのパターンを作成２
   diagonalCount = squareLine - 1;
   diagonalBingo = [];
@@ -137,42 +141,21 @@ function calculateWinner(squares) {
   }
   bingo.push(diagonalBingo);
 
-  const lines = [
-    // よこ
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    // たて
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    // ななめ
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  // lines = [ // これ事態はsquareLine*2+2
-  //   // よこ　squareLine個
-  //   [0, 1, 2 ,3],
-  //   [4, 5, 6, 7],
-  //   [8, 9, 10, 11],
-  //   [12, 13, 14, 15],
-  //   // たて　squareLine個
-  //   [0, 4, 8 ,12],
-  //   [1, 5, 9, 13],
-  //   [2, 6, 10, 14],
-  //   [3, 7, 11, 15],
-  //   // ななめ　2個
-  //   [0, 5, 10, 15],
-  //   [3, 6, 9, 12],
+  /* ３×３の場合、ビンゴとなるのは以下のどれかの列の中身が全て一致した場合 */
+  // const lines = [
+  //   // よこ
+  //   [0, 1, 2],
+  //   [3, 4, 5],
+  //   [6, 7, 8],
+  //   // たて
+  //   [0, 3, 6],
+  //   [1, 4, 7],
+  //   [2, 5, 8],
+  //   // ななめ
+  //   [0, 4, 8],
+  //   [2, 4, 6],
   // ];
-  console.log("ストップ用");
-  // console.log(bingo[0][0]); //0
-  // console.log(bingo[0][1]); //1
-  // console.log(bingo[0][2]); //2
-  console.log(squares[2])
-  var a = bingo[0][2];
-  console.log(squares[bingo[0][2]])
-  // alphabet.some( target => target === 'c') 
+
   var bingoResult;
   for (let i = 0; i < bingo.length; i++) {
     var checkBingoLine = [];
@@ -185,14 +168,8 @@ function calculateWinner(squares) {
     if(bingoResult){
       break;
     }
-    // checkBingoLine.some( target => target != squareContent);
-    // const [a, b, c] = bingo[i];
-    // if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-    //   return squares[a];
-    // }
   }
   return bingoResult;
-  // return null;
 }
 
 
